@@ -2,11 +2,10 @@ const { ipcRenderer } = require('electron')
 
 ipcRenderer.on('set', (event, args) => {
     console.log('setSounds fired')
-    const html = document.getElementById('html')
+    const html = document.getElementById('')
     args.forEach(function(element) {
-        var sounddiv = document.createElement('div')
-        sounddiv.innerHTMl = element.name
-        html.appendChild(sounddiv)
+        var soundDiv = document.getElementById('sounddiv');
+        document.body.appendChild(soundDiv.content.cloneNode(true));
     });
 })
 
