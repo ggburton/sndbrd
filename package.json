@@ -1,0 +1,16 @@
+{
+  "name": "sndbrd",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron src/app/main.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^1.7.5",
+    "electron-json-storage": "^3.0.7",
+    "electron-storage": "^1.0.7"
+  }
+}
