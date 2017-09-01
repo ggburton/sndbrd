@@ -43,7 +43,10 @@ function setSounds(sounds) {
 }
 
 
-app.on('ready', createWindow)
+app.on('ready', () => {
+    console.log('add ready');
+    createWindow();
+});
 
 function setupSounds() {
     saveSounds(soundlist)
