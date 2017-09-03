@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron')
 const { saveSounds, loadSounds, removeSounds } = require('./sounds')
+const fs = require('fs');
 
 let win
 url = `file://${__dirname + '/index.html'}`
@@ -10,12 +11,20 @@ let soundlist = [{
         "hotkey": "1"
     },
     {
-        "name": "hello",
-        "file": "hello.wav",
+        "name": "mommy",
+        "file": "mommy.wav",
         "hotkey": "2"
     }
 ]
 
+template = [{
+    label: 'Edit Sounds',
+    submenu: [
+        { label: 'Add Sound', click() { addSound() } }
+    ]
+}]
+
+const menu = Menu.buildFromTemplate(template)
 
 function createWindow() {
     win = new BrowserWindow({
@@ -44,7 +53,7 @@ function setSounds(sounds) {
 
 
 app.on('ready', () => {
-    console.log('add ready');
+    Menu.setApplicationMenu(menu);
     createWindow();
 });
 
@@ -53,4 +62,16 @@ function setupSounds() {
     loadSounds().then(sounds => {
         setSounds(sounds)
     })
+}
+
+function addSound() {
+    dialog.showOpenDialog({
+        filters: [
+            { name: 'Sounds', extensions: ['mp3', 'wav'] }
+        ]
+    }, saveNewSound)
+}
+
+function saveNewSound(files) {
+    console.log(files);
 }
