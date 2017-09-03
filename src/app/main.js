@@ -1,5 +1,6 @@
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron')
-const { saveSounds, loadSounds, removeSounds } = require('./sounds')
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron');
+const { saveSounds, loadSounds, removeSounds } = require('./sounds');
+const path = require('path');
 const fs = require('fs');
 
 let win
@@ -58,9 +59,9 @@ app.on('ready', () => {
 });
 
 function setupSounds() {
-    saveSounds(soundlist)
+    saveSounds(soundlist);
     loadSounds().then(sounds => {
-        setSounds(sounds)
+        setSounds(sounds);
     })
 }
 
@@ -69,9 +70,22 @@ function addSound() {
         filters: [
             { name: 'Sounds', extensions: ['mp3', 'wav'] }
         ]
-    }, saveNewSound)
+    }, saveNewSound);
 }
 
 function saveNewSound(files) {
-    console.log(files);
+    filename = path.basename(files[0]);
+    sound = fs.open(files[0], 'r', function(err, file) {
+        newFilePath = path.join(__dirname, '..',
+            'assets', filename);
+        console.log(newFilePath);
+        fs.writeFile(newFilePath, file, function(err) {
+            if (err) {
+                console.log('error: ', err);
+            } else {
+                console.log('saved');
+            }
+        });
+    });
+
 }
