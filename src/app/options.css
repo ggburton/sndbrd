@@ -1,0 +1,26 @@
+body {
+    background: #292020;
+}
+
+.formgroup {
+    background: red;
+}
+
+.flexdiv {
+    text-align: center;
+    color: white;
+    height: 30px;
+}
+
+input {
+    width: 10px;
+}
+
+label {
+    color: white;
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}

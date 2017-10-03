@@ -6,17 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>SoundBoard</title>
+    <link rel="stylesheet" href="./index.css">
 </head>
 
 <body>
     <h1>SoundBoard</h1>
+    <div id="soundcontainer"></div>
 
+    <template id="soundtemplate">
+        <div class="sounddiv push--flat" onClick="play(this.id)">
 
-    <template id="sounddiv">
-        <div>
-            <button onClick="play(this.id)"></button>
         </div>
     </template>
+
     <script src="./index.js"></script>
 
 </body>

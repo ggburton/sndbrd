@@ -1,27 +1,34 @@
-const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron');
-const { saveSounds, loadSounds, removeSounds } = require('./sounds');
+const {
+    app,
+    BrowserWindow,
+    ipcMain,
+    Menu,
+    MenuItem,
+    dialog,
+    globalShortcut
+} = require('electron');
 const path = require('path');
 const fs = require('fs');
+require('electron-reload')(__dirname, {
+    electron: path.join(__dirname, 'node_modules', 'bin', 'electron'),
+    hardResetMethod: 'exit'
+});
+
+const ASSETS_PATH = path.join(__dirname, '..', 'assets');
 
 let win
-url = `file://${__dirname + '/index.html'}`
+let keymap
+let optionswin
+let sounds = [];
 
-let soundlist = [{
-        "name": "911",
-        "file": "911.wav",
-        "hotkey": "1"
-    },
-    {
-        "name": "mommy",
-        "file": "mommy.wav",
-        "hotkey": "2"
-    }
-]
+url = `file://${__dirname + '/index.html'}`
+optionsurl = `file://${__dirname + '/options.html'}`
 
 template = [{
     label: 'Edit Sounds',
     submenu: [
-        { label: 'Add Sound', click() { addSound() } }
+        { label: 'Add Sound', click() { addSound() } },
+        { label: 'Add Hotkey', click() { addHotkey() } }
     ]
 }]
 
@@ -45,47 +52,98 @@ function createWindow() {
     })
 }
 
-function setSounds(sounds) {
-    sounds.forEach(function(sound) {
-        console.log(sound.hotkey)
-    })
-    win.webContents.send('set', sounds)
-}
-
-
 app.on('ready', () => {
     Menu.setApplicationMenu(menu);
     createWindow();
+    getKeymap();
 });
 
 function setupSounds() {
-    saveSounds(soundlist);
-    loadSounds().then(sounds => {
-        setSounds(sounds);
+    sounds = [];
+    fs.readdir(ASSETS_PATH, (err, files) => {
+        files.forEach(file => {
+            name = file.split('.');
+            if (name[1] !== undefined) {
+                console.log('ext:', name[1]);
+                sounds.push(name[0]);
+            }
+        })
+        win.webContents.send('set', sounds);
     })
+}
+
+function saveNewSound(files) {
+    if (files) {
+        console.log(keymap);
+        filename = path.basename(files[0]);
+        name = filename.split('.');
+        outfilepath = path.join(ASSETS_PATH, filename);
+        sound = fs.createReadStream(files[0]).pipe(fs.createWriteStream(outfilepath));
+        keymap.push({ hotkey: null, name: name[0] });
+        setupSounds();
+        saveKeymap();
+    }
 }
 
 function addSound() {
     dialog.showOpenDialog({
         filters: [
-            { name: 'Sounds', extensions: ['mp3', 'wav'] }
+            { name: 'Sounds', extensions: ['wav'] }
         ]
     }, saveNewSound);
 }
 
-function saveNewSound(files) {
-    filename = path.basename(files[0]);
-    sound = fs.open(files[0], 'r', function(err, file) {
-        newFilePath = path.join(__dirname, '..',
-            'assets', filename);
-        console.log(newFilePath);
-        fs.writeFile(newFilePath, file, function(err) {
-            if (err) {
-                console.log('error: ', err);
-            } else {
-                console.log('saved');
-            }
-        });
+function addHotkey() {
+    optionswin = new BrowserWindow({
+        height: 300,
+        width: 200
     });
+    optionswin.webContents.openDevTools({ mode: 'detach' });
+    optionswin.loadURL(optionsurl);
 
+    optionswin.webContents.on('did-finish-load', () => {
+        optionswin.webContents.send('send-current-shortcuts', keymap);
+    });
 }
+
+function getKeymap() {
+    fs.readFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), 'utf-8', (err, data) => {
+        if (err) throw err;
+        keymap = JSON.parse(data);
+        registerGlobalShortcuts(keymap);
+    });
+}
+
+function saveKeymap() {
+    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkey.json'), keymap, (err) => {
+        if (err) {
+            console.log('opps error:', err);
+        }
+        console.log('saved file');
+    })
+}
+
+function registerGlobalShortcuts(shortcuts) {
+    globalShortcut.unregisterAll();
+    shortcuts.forEach(function(element) {
+        if (element.hotkey !== null) {
+            globalShortcut.register(element.hotkey, () => {
+                remotePlay(element.name);
+            })
+        }
+    })
+}
+
+function remotePlay(soundName) {
+    win.webContents.send('play', soundName);
+}
+
+ipcMain.on('setShortcuts', (event, args) => {
+    console.log('received shortcuts', args);
+    registerGlobalShortcuts(args);
+    let newshortcuts = JSON.stringify(args);
+    optionswin.close();
+    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), newshortcuts, (err) => {
+        if (err) console.log('cannot write to file');
+    })
+})

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./options.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Options</h1>
+
+    <form id="hotkeyForm" onSubmit="saveShortcuts()">
+        <div id="formInputDiv">
+
+        </div>
+
+        <button type="submit">Save</button>
+    </form>
+
+    <template id="hotkeyInput">
+        <div class="formgroup">
+            <div class="flexdiv">
+                <label class="label flex"></label>
+            </div>
+            <div class="flexdiv">
+                <span>ctrl-shift-</span><input class="inputtext flex">
+            </div>
+        </div>
+    </template>
+    <script src="./options.js"></script>
+</body>
+
+</html>
