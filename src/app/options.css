@@ -9,6 +9,7 @@ h1 {
 #formInputDiv {
     padding: 10px;
     display: flex;
+    flex-direction: column;
 }
 
 .formgroup {
@@ -18,7 +19,9 @@ h1 {
 }
 
 .horizontal {
+    margin-right: 50px;
     display: flex;
+    flex-grow: 1;
 }
 
 .flexdiv {
@@ -29,12 +32,20 @@ h1 {
     flex-direction: column;
 }
 
-.flex {
+.flexItem {
+    margin-left: 20px;
     text-align: center;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
 }
 
 .ctrlShiftLabel {
     flex-grow: 4;
+}
+
+.inputtext {
+    width: 20px;
 }
 
 label {
