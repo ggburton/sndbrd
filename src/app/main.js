@@ -41,7 +41,6 @@ function createWindow() {
     })
 
     win.loadURL(url)
-    win.webContents.openDevTools({ mode: 'detach' })
 
     win.webContents.on('did-finish-load', () => {
         setupSounds()
@@ -58,12 +57,25 @@ app.on('ready', () => {
     getKeymap();
 });
 
+function checkSoundHasKeymap(sound) {
+    let obj = keymap.find(item => item.name === sound);
+    if (obj === undefined) {
+        let key = {
+            name: sound,
+            hotkey: null
+        }
+        keymap.push(key)
+    }
+};
+
+
 function setupSounds() {
     sounds = [];
     fs.readdir(ASSETS_PATH, (err, files) => {
         files.forEach(file => {
             name = file.split('.');
-            if (name[1] !== undefined) {
+            if (name[1] === 'wav') {
+                checkSoundHasKeymap(name[0]);
                 console.log('ext:', name[1]);
                 sounds.push(name[0]);
             }
@@ -74,7 +86,6 @@ function setupSounds() {
 
 function saveNewSound(files) {
     if (files) {
-        console.log(keymap);
         filename = path.basename(files[0]);
         name = filename.split('.');
         outfilepath = path.join(ASSETS_PATH, filename);
@@ -98,7 +109,6 @@ function addHotkey() {
         height: 300,
         width: 200
     });
-    optionswin.webContents.openDevTools({ mode: 'detach' });
     optionswin.loadURL(optionsurl);
 
     optionswin.webContents.on('did-finish-load', () => {
@@ -106,16 +116,28 @@ function addHotkey() {
     });
 }
 
+
 function getKeymap() {
     fs.readFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), 'utf-8', (err, data) => {
         if (err) throw err;
         keymap = JSON.parse(data);
+        keymap.forEach(item => {
+            const filename = item.name + '.wav';
+            fs.stat(path.join(ASSETS_PATH, filename), (err, stat) => {
+                if (err) {
+                    if (err.code == 'ENOENT') {
+                        keymap.splice(keymap.indexOf(item), 1);
+                    }
+                };
+            });
+        });
         registerGlobalShortcuts(keymap);
     });
 }
 
 function saveKeymap() {
-    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkey.json'), keymap, (err) => {
+    let jsonkeymap = JSON.stringify(keymap)
+    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), jsonkeymap, (err) => {
         if (err) {
             console.log('opps error:', err);
         }
@@ -139,11 +161,8 @@ function remotePlay(soundName) {
 }
 
 ipcMain.on('setShortcuts', (event, args) => {
-    console.log('received shortcuts', args);
     registerGlobalShortcuts(args);
     let newshortcuts = JSON.stringify(args);
     optionswin.close();
-    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), newshortcuts, (err) => {
-        if (err) console.log('cannot write to file');
-    })
+    saveKeymap();
 })

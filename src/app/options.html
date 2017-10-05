@@ -16,18 +16,21 @@
         <div id="formInputDiv">
 
         </div>
+        <div buttonDiv>
+            <button type="submit">Save</button>
+        </div>
 
-        <button type="submit">Save</button>
+
     </form>
 
     <template id="hotkeyInput">
         <div class="formgroup">
-            <div class="flexItem">
+            <div class="flexItem label">
                 <label class="label"></label>
             </div>
-            <div class="flexdiv">
+            <div class="flexItem">
                 <div class="horzontal">
-                    <span class="ctrlShiftLabel">CTRL-SHIFT-</span><input class="inputtext">
+                    <span class="ctrlShiftLabel">CTRL-SHIFT-</span><input maxlength="1" pattern="[A-Za-z0-9]{1}" class="inputtext">
                 </div>
             </div>
         </div>
