@@ -1,21 +1,37 @@
 {
-  "name": "sndbrd",
-  "version": "1.0.0",
-  "description": "",
-  "main": "main.js",
-  "scripts": {
-    "start": "electron src/app/main.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "electron": "^1.7.5",
-    "electron-devtools-installer": "^2.2.0",
-    "electron-json-storage": "^3.0.7",
-    "electron-storage": "^1.0.7"
-  },
-  "devDependencies": {
-    "devtron": "^1.4.0",
-    "electron-reload": "^1.2.1"
-  }
+    "name": "sndbrd",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/app/main.js",
+    "scripts": {
+        "start": "electron src/app/main.js",
+        "pack": "build --dir",
+        "dist": "build",
+        "postinstall": "install-app-deps"
+    },
+    "author": "",
+    "license": "ISC",
+    "build": {
+        "appId": "com.example.soundboard",
+        "productName": "soundboard",
+        "win": {
+            "target": [
+                "nsis"
+            ],
+            "icon": "src/assets/settings/arcade.ico"
+        },
+        "nsis": {
+            "installerIcon": "src/assets/settings/arcade.ico",
+            "uninstallerIcon": "src/assets/settings/arcade.ico",
+            "runAfterFinish": true
+        }
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "devtron": "^1.4.0",
+        "electron": "^1.7.8",
+        "electron-builder": "^19.34.1",
+        "electron-devtools-installer": "^2.2.0",
+        "electron-reload": "^1.2.1"
+    }
 }

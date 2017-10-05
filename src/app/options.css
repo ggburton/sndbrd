@@ -2,25 +2,52 @@ body {
     background: #292020;
 }
 
+h1 {
+    color: red;
+}
+
+#formInputDiv {
+    padding: 10px;
+    display: flex;
+}
+
 .formgroup {
-    background: red;
+    border: 1px solid white;
+    display: flex;
+    margin: 8px;
+}
+
+.horizontal {
+    display: flex;
 }
 
 .flexdiv {
-    text-align: center;
     color: white;
-    height: 30px;
+    height: 40px;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
 }
 
-input {
-    width: 10px;
+.flex {
+    text-align: center;
+}
+
+.ctrlShiftLabel {
+    flex-grow: 4;
 }
 
 label {
     color: white;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 h1 {
     color: white;
     text-align: center;
+}
+
+button {
+    margin-top: 15px;
 }
