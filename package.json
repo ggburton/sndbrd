@@ -1,15 +1,18 @@
 {
     "name": "sndbrd",
     "version": "1.0.0",
-    "description": "",
+    "description": "A Desktop Soundboard",
     "main": "src/app/main.js",
+    "author": {
+        "name": "Greg Burton",
+        "email": "ggburton@internode.on.net"
+    },
     "scripts": {
         "start": "electron src/app/main.js",
         "pack": "build --dir",
         "dist": "build",
         "postinstall": "install-app-deps"
     },
-    "author": "",
     "license": "ISC",
     "build": {
         "appId": "com.example.soundboard",

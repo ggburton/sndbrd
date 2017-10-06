@@ -9,12 +9,10 @@ const {
 } = require('electron');
 const path = require('path');
 const fs = require('fs');
-require('electron-reload')(__dirname, {
-    electron: path.join(__dirname, 'node_modules', 'bin', 'electron'),
-    hardResetMethod: 'exit'
-});
 
-const ASSETS_PATH = path.join(__dirname, '..', 'assets');
+
+const SOUND_DIR = path.join(app.getPath('userData'), 'sounds')
+const SETTINGS = app.getPath('userData')
 
 let win
 let keymap
@@ -37,7 +35,9 @@ const menu = Menu.buildFromTemplate(template)
 function createWindow() {
     win = new BrowserWindow({
         height: 600,
-        width: 800
+        width: 800,
+        minHeight: 350,
+        minWidth: 300
     })
 
     win.loadURL(url)
@@ -71,7 +71,10 @@ function checkSoundHasKeymap(sound) {
 
 function setupSounds() {
     sounds = [];
-    fs.readdir(ASSETS_PATH, (err, files) => {
+    if (!fs.existsSync(SOUND_DIR)) {
+        fs.mkdirSync(SOUND_DIR)
+    }
+    fs.readdir(SOUND_DIR, (err, files) => {
         files.forEach(file => {
             name = file.split('.');
             if (name[1] === 'wav') {
@@ -88,7 +91,7 @@ function saveNewSound(files) {
     if (files) {
         filename = path.basename(files[0]);
         name = filename.split('.');
-        outfilepath = path.join(ASSETS_PATH, filename);
+        outfilepath = path.join(SOUND_DIR, filename);
         sound = fs.createReadStream(files[0]).pipe(fs.createWriteStream(outfilepath));
         keymap.push({ hotkey: null, name: name[0] });
         setupSounds();
@@ -107,7 +110,10 @@ function addSound() {
 function addHotkey() {
     optionswin = new BrowserWindow({
         height: 300,
-        width: 200
+        width: 500,
+        minHeight: 300,
+        minWidth: 500,
+        maxWidth: 500
     });
     optionswin.loadURL(optionsurl);
 
@@ -118,26 +124,29 @@ function addHotkey() {
 
 
 function getKeymap() {
-    fs.readFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), 'utf-8', (err, data) => {
-        if (err) throw err;
-        keymap = JSON.parse(data);
-        keymap.forEach(item => {
-            const filename = item.name + '.wav';
-            fs.stat(path.join(ASSETS_PATH, filename), (err, stat) => {
-                if (err) {
-                    if (err.code == 'ENOENT') {
-                        keymap.splice(keymap.indexOf(item), 1);
-                    }
-                };
+    fs.readFile(path.join(app.getPath('userData'), 'hotkeys.json'), 'utf-8', (err, data) => {
+        if (err) {
+            keymap = [];
+        } else {
+            keymap = JSON.parse(data);
+            keymap.forEach(item => {
+                const filename = item.name + '.wav';
+                fs.stat(path.join(SOUND_DIR, filename), (err, stat) => {
+                    if (err) {
+                        if (err.code == 'ENOENT') {
+                            keymap.splice(keymap.indexOf(item), 1);
+                        }
+                    };
+                });
             });
-        });
-        registerGlobalShortcuts(keymap);
+            registerGlobalShortcuts(keymap);
+        }
     });
 }
 
 function saveKeymap() {
     let jsonkeymap = JSON.stringify(keymap)
-    fs.writeFile(path.join(ASSETS_PATH, 'settings', 'hotkeys.json'), jsonkeymap, (err) => {
+    fs.writeFile(path.join(SETTINGS, 'hotkeys.json'), jsonkeymap, (err) => {
         if (err) {
             console.log('opps error:', err);
         }
