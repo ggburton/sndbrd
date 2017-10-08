@@ -41,6 +41,7 @@ function createWindow() {
     })
 
     win.loadURL(url)
+    win.webContents.openDevTools({ mode: 'detach' })
 
     win.webContents.on('did-finish-load', () => {
         setupSounds()
@@ -83,6 +84,7 @@ function setupSounds() {
                 sounds.push(name[0]);
             }
         })
+        win.webContents.send('soundpath', SOUND_DIR)
         win.webContents.send('set', sounds);
     })
 }
@@ -124,11 +126,13 @@ function addHotkey() {
 
 
 function getKeymap() {
-    fs.readFile(path.join(app.getPath('userData'), 'hotkeys.json'), 'utf-8', (err, data) => {
+    fs.readFile(path.join(SETTINGS, 'hotkeys.json'), 'utf-8', (err, data) => {
         if (err) {
+            console.log('no keymap')
             keymap = [];
         } else {
-            keymap = JSON.parse(data);
+            keymap = JSON.parse(data)
+            console.log(keymap)
             keymap.forEach(item => {
                 const filename = item.name + '.wav';
                 fs.stat(path.join(SOUND_DIR, filename), (err, stat) => {
@@ -146,6 +150,7 @@ function getKeymap() {
 
 function saveKeymap() {
     let jsonkeymap = JSON.stringify(keymap)
+    console.log(jsonkeymap)
     fs.writeFile(path.join(SETTINGS, 'hotkeys.json'), jsonkeymap, (err) => {
         if (err) {
             console.log('opps error:', err);
@@ -171,7 +176,8 @@ function remotePlay(soundName) {
 
 ipcMain.on('setShortcuts', (event, args) => {
     registerGlobalShortcuts(args);
-    let newshortcuts = JSON.stringify(args);
+    keymap = args;
+    console.log('keymap: ', keymap)
     optionswin.close();
     saveKeymap();
 })

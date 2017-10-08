@@ -1,6 +1,12 @@
-const { ipcRenderer } = require('electron');
+const { ipcRenderer, app } = require('electron');
 const path = require('path');
 require('devtron').install()
+
+let soundpath
+
+ipcRenderer.on('soundpath', (event, args) => {
+    soundpath = args
+})
 
 ipcRenderer.on('set', (event, args) => {
     var soundcontainer = document.getElementById('soundcontainer')
@@ -23,10 +29,11 @@ ipcRenderer.on('play', (event, args) => {
 })
 
 function play(buttonid) {
+    console.log('app:', app)
     let button = document.getElementById(buttonid)
     button.classList.add('playing');
     file = buttonid + '.wav';
-    const soundPath = path.join('../assets/', file)
+    const soundPath = path.join(soundpath, file)
     let audio = new Audio(soundPath);
     audio.currentTime = 0;
     audio.play();
